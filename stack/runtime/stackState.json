@@ -1,0 +1,26 @@
+{
+  "deployedContracts": [
+    {
+      "name": "erc20erc721_TokenFactory_0",
+      "location": {
+        "address": "0x154ab9d1017b0ed1235688649211585ffc9a2268"
+      }
+    },
+    {
+      "name": "FireFly",
+      "location": {
+        "address": "0xd3fc57ffd7b39461d55e597bf93b05f7809683e3"
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "address": "0xf4c6f7292724902a1ac96b6d4e2b246dbd94b28d",
+      "privateKey": "4a7b99b86c556886567131e8641f95d89ae8db3dfac538221e8975a73f3155da"
+    },
+    {
+      "address": "0x22b18a335990f87395e0f8fc29691877cca68a2a",
+      "privateKey": "f7968f686cea117fd29938d65afe9a8adb20aa655b1d63511457e7c2a7b9d87c"
+    }
+  ]
+}
