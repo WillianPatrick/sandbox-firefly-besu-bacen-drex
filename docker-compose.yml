@@ -1,286 +1,461 @@
-# This file is generated - DO NOT EDIT!
-# To override config, edit docker-compose.override.yml
 version: "2.1"
+
+name: hyperledger-besu-nodes
+x-besu-def:
+  &besu-def
+  restart: "on-failure"
+  image: hyperledger/besu:23.10.1
+  user: root
+  volumes:
+    - ./services-init-config/:/config
+    - ./data/keys:/keys
+  logging:
+    driver: json-file
+    options:
+        max-file: "1"
+        max-size: 10m
+
 services:
-    besu:
-        container_name: devbesu_besu
-        image: hyperledger/besu:22.4
-        user: root
-        command: --genesis-file=/data/genesis.json --network-id 2021 --rpc-http-enabled --rpc-http-api=ETH,NET,CLIQUE --host-allowlist="*" --rpc-http-cors-origins="all" --sync-mode=FULL --discovery-enabled=false --node-private-key-file=/data/nodeKey --min-gas-price=0
-        volumes:
-            - besu:/data
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    dataexchange_0:
-        container_name: devbesu_dataexchange_0
-        image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
-        volumes:
-            - dataexchange_0:/data
-        ports:
-            - 10205:3000
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    dataexchange_1:
-        container_name: devbesu_dataexchange_1
-        image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
-        volumes:
-            - dataexchange_1:/data
-        ports:
-            - 10405:3000
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    ethsigner:
-        container_name: devbesu_ethsigner
-        image: ghcr.io/hyperledger/firefly-signer@sha256:9f4c29ea05eb111d958d8210601cdf876b4f70fbe443c080dbc7c0c16c7921e9
-        user: root
-        volumes:
-            - ethsigner:/data
-            - ethsigner_config:/etc/firefly
-        ports:
-            - 5100:8545
-        healthcheck:
-            test:
-                - CMD
-                - curl
-                - -X
-                - POST
-                - -H
-                - 'Content-Type: application/json'
-                - -d
-                - '{"jsonrpc":"2.0","method":"net_version","params":[],"id":"1"}'
-                - -w
-                - '%{http_code}'
-                - -sS
-                - --fail
-                - http://localhost:8545/
-            interval: 15s
-            retries: 60
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    evmconnect_0:
-        container_name: devbesu_evmconnect_0
-        image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
-        command: -f /evmconnect/config.yaml
-        volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/evmconnect_0.yaml:/evmconnect/config.yaml
-            - evmconnect_data_0:/evmconnect/data
-        ports:
-            - 5102:5008
-        depends_on:
-            ethsigner:
-                condition: service_healthy
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    evmconnect_1:
-        container_name: devbesu_evmconnect_1
-        image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
-        command: -f /evmconnect/config.yaml
-        volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/evmconnect_1.yaml:/evmconnect/config.yaml
-            - evmconnect_data_1:/evmconnect/data
-        ports:
-            - 5202:5008
-        depends_on:
-            ethsigner:
-                condition: service_healthy
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    firefly_core_0:
-        container_name: devbesu_firefly_core_0
-        image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
-        volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/firefly_core_0.yml:/etc/firefly/firefly.core.yml:ro
-            - firefly_core_data_0:/etc/firefly/data
-        ports:
-            - 5000:5000
-            - 5101:5101
-        depends_on:
-            besu:
-                condition: service_started
-            dataexchange_0:
-                condition: service_started
-            ethsigner:
-                condition: service_healthy
-            evmconnect_0:
-                condition: service_started
-            evmconnect_1:
-                condition: service_started
-            ipfs_0:
-                condition: service_healthy
-            tokens_0_0:
-                condition: service_healthy
-            tokens_1_0:
-                condition: service_healthy
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    firefly_core_1:
-        container_name: devbesu_firefly_core_1
-        image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
-        volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/firefly_core_1.yml:/etc/firefly/firefly.core.yml:ro
-            - firefly_core_data_1:/etc/firefly/data
-        ports:
-            - 5001:5001
-            - 5201:5201
-        depends_on:
-            besu:
-                condition: service_started
-            dataexchange_1:
-                condition: service_started
-            ethsigner:
-                condition: service_healthy
-            evmconnect_0:
-                condition: service_started
-            evmconnect_1:
-                condition: service_started
-            ipfs_1:
-                condition: service_healthy
-            tokens_0_0:
-                condition: service_healthy
-            tokens_1_0:
-                condition: service_healthy
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    ipfs_0:
-        container_name: devbesu_ipfs_0
-        image: ipfs/go-ipfs:v0.10.0
+    besu-bacen-v1:
+        << : *besu-def
+        container_name: besu-bc-validator1
         environment:
-            IPFS_SWARM_KEY: |-
-                /key/swarm/psk/1.0.0/
-                /base16/
-                e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
-            LIBP2P_FORCE_PNET: "1"
-        volumes:
-            - ipfs_staging_0:/export
-            - ipfs_data_0:/data/ipfs
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-validator1,service.version=latest
+        - NODE_ID=1
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/validators/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/validators/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/validators/validator1/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=BACEN-V1 --p2p-host=$$(hostname -i)
         ports:
-            - 10206:5001
-            - 10207:8080
-        healthcheck:
-            test:
-                - CMD-SHELL
-                - wget --post-data= http://127.0.0.1:5001/api/v0/id -O - -q
-            interval: 5s
-            timeout: 3s
-            retries: 12
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    ipfs_1:
-        container_name: devbesu_ipfs_1
-        image: ipfs/go-ipfs:v0.10.0
+        - 8545:8545/tcp
+        - 30303
+        - 9545
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.10
+
+    besu-bacen-v2:
+        << : *besu-def
+        container_name: besu-bc-validator2
         environment:
-            IPFS_SWARM_KEY: |-
-                /key/swarm/psk/1.0.0/
-                /base16/
-                e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
-            LIBP2P_FORCE_PNET: "1"
-        volumes:
-            - ipfs_staging_1:/export
-            - ipfs_data_1:/data/ipfs
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-validator2,service.version=latest
+        - NODE_ID=2
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/validators/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/validators/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/validators/validator2/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=BACEN-V2 --p2p-host=$$(hostname -i)
         ports:
-            - 10406:5001
-            - 10407:8080
-        healthcheck:
-            test:
-                - CMD-SHELL
-                - wget --post-data= http://127.0.0.1:5001/api/v0/id -O - -q
-            interval: 5s
-            timeout: 3s
-            retries: 12
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    sandbox_0:
-        container_name: devbesu_sandbox_0
-        image: ghcr.io/hyperledger/firefly-sandbox:latest
-        environment:
-            FF_ENDPOINT: http://firefly_core_0:5000
-        ports:
-            - 5109:3001
-    sandbox_1:
-        container_name: devbesu_sandbox_1
-        image: ghcr.io/hyperledger/firefly-sandbox:latest
-        environment:
-            FF_ENDPOINT: http://firefly_core_1:5001
-        ports:
-            - 5209:3001
-    tokens_0_0:
-        container_name: devbesu_tokens_0_0
-        image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
-        environment:
-            AUTO_INIT: "false"
-            ETHCONNECT_TOPIC: tokens_0_0
-            ETHCONNECT_URL: http://evmconnect_0:5008
-            FACTORY_CONTRACT_ADDRESS: "0x154ab9d1017b0ed1235688649211585ffc9a2268"
-        ports:
-            - 5108:3000
+        - 21001:8545/tcp
+        - 30303
+        - 9545
         depends_on:
-            evmconnect_0:
-                condition: service_started
-        healthcheck:
-            test:
-                - CMD
-                - curl
-                - http://localhost:3000/api
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
-    tokens_1_0:
-        container_name: devbesu_tokens_1_0
-        image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
+            - besu-bacen-v1
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.11
+
+    besu-bacen-v3:
+        << : *besu-def
+        container_name: besu-bc-validator3
         environment:
-            AUTO_INIT: "false"
-            ETHCONNECT_TOPIC: tokens_1_0
-            ETHCONNECT_URL: http://evmconnect_1:5008
-            FACTORY_CONTRACT_ADDRESS: "0x154ab9d1017b0ed1235688649211585ffc9a2268"
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-validator3,service.version=latest
+        - NODE_ID=3
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/validators/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/validators/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/validators/validator3/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=BACEN-V3 --p2p-host=$$(hostname -i)
         ports:
-            - 5208:3000
+        - 21002:8545/tcp
+        - 30303
+        - 9545
         depends_on:
-            evmconnect_1:
-                condition: service_started
-        healthcheck:
-            test:
-                - CMD
-                - curl
-                - http://localhost:3000/api
-        logging:
-            driver: json-file
-            options:
-                max-file: "1"
-                max-size: 10m
+            - besu-bacen-v1
+            - besu-bacen-v2
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.12
+
+    besu-bacen-v4:
+        << : *besu-def
+        container_name: besu-bc-validator4
+        environment:
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-validator4,service.version=latest
+        - NODE_ID=4
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/validators/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/validators/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/validators/validator4/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=BACEN-V4 --p2p-host=$$(hostname -i)
+        ports:
+        - 21003:8545/tcp
+        - 30303
+        - 9545
+        depends_on:
+            - besu-bacen-v1
+            - besu-bacen-v2
+            - besu-bacen-v3
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.13
+
+    besu-bacen-m1:
+        << : *besu-def
+        container_name: besu-bc-member1
+        environment:
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-member1,service.version=latest
+        - NODE_ID=100
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/members/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/members/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/members/member1/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=besu-bc-member1 --p2p-host=$$(hostname -i)
+        ports:
+        - 21004:8545/tcp
+        - 30303
+        - 9545
+        depends_on:
+            - besu-bacen-v1
+            - besu-bacen-v2
+            - besu-bacen-v3
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.100
+
+    besu-bacen-m2:
+        << : *besu-def
+        container_name: besu-bc-member2
+        environment:
+        - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-bc-member2,service.version=latest
+        - NODE_ID=100
+        labels:
+        - "consensus=besu"
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/members/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/members/genesis.json" /opt/besu/genesis.json 
+            cp "/config/besu/commons/permissions_config.toml" /opt/besu/permissions_config.toml 
+            cp "/config/besu/commons/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/keys/nodes/members/member2/key" /opt/besu/nodeKey
+            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --identity=besu-bc-member2 --p2p-host=$$(hostname -i)         
+        ports:
+        - 21005:8545/tcp
+        - 30303
+        - 9545
+        depends_on:
+            - besu-bacen-v1
+            - besu-bacen-v2
+            - besu-bacen-v3
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.101
+
+    # dataexchange_0:
+    #     container_name: devbesu_dataexchange_0
+    #     image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
+    #     volumes:
+    #         - dataexchange_0:/data
+    #     ports:
+    #         - 10205:3000
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # dataexchange_1:
+    #     container_name: devbesu_dataexchange_1
+    #     image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
+    #     volumes:
+    #         - dataexchange_1:/data
+    #     ports:
+    #         - 10405:3000
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # ethsigner:
+    #     container_name: devbesu_ethsigner
+    #     image: ghcr.io/hyperledger/firefly-signer@sha256:9f4c29ea05eb111d958d8210601cdf876b4f70fbe443c080dbc7c0c16c7921e9
+    #     user: root
+    #     volumes:
+    #         - ethsigner:/data
+    #         - ethsigner_config:/etc/firefly
+    #     ports:
+    #         - 5100:8545
+    #     healthcheck:
+    #         test:
+    #             - CMD
+    #             - curl
+    #             - -X
+    #             - POST
+    #             - -H
+    #             - 'Content-Type: application/json'
+    #             - -d
+    #             - '{"jsonrpc":"2.0","method":"net_version","params":[],"id":"1"}'
+    #             - -w
+    #             - '%{http_code}'
+    #             - -sS
+    #             - --fail
+    #             - http://localhost:8545/
+    #         interval: 15s
+    #         retries: 60
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # evmconnect_0:
+    #     container_name: devbesu_evmconnect_0
+    #     image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
+    #     command: -f /evmconnect/config.yaml
+    #     volumes:
+    #         - /root/.firefly/stacks/devbesu/runtime/config/evmconnect_0.yaml:/evmconnect/config.yaml
+    #         - evmconnect_data_0:/evmconnect/data
+    #     ports:
+    #         - 5102:5008
+    #     depends_on:
+    #         ethsigner:
+    #             condition: service_healthy
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # evmconnect_1:
+    #     container_name: devbesu_evmconnect_1
+    #     image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
+    #     command: -f /evmconnect/config.yaml
+    #     volumes:
+    #         - /root/.firefly/stacks/devbesu/runtime/config/evmconnect_1.yaml:/evmconnect/config.yaml
+    #         - evmconnect_data_1:/evmconnect/data
+    #     ports:
+    #         - 5202:5008
+    #     depends_on:
+    #         ethsigner:
+    #             condition: service_healthy
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # firefly_core_0:
+    #     container_name: devbesu_firefly_core_0
+    #     image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
+    #     volumes:
+    #         - /root/.firefly/stacks/devbesu/runtime/config/firefly_core_0.yml:/etc/firefly/firefly.core.yml:ro
+    #         - firefly_core_data_0:/etc/firefly/data
+    #     ports:
+    #         - 5000:5000
+    #         - 5101:5101
+    #     depends_on:
+    #         besu-bacen-v1:
+    #             condition: service_started
+    #         dataexchange_0:
+    #             condition: service_started
+    #         ethsigner:
+    #             condition: service_healthy
+    #         evmconnect_0:
+    #             condition: service_started
+    #         evmconnect_1:
+    #             condition: service_started
+    #         # ipfs_0:
+    #         #     condition: service_healthy
+    #         tokens_0_0:
+    #             condition: service_healthy
+    #         tokens_1_0:
+    #             condition: service_healthy
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # firefly_core_1:
+    #     container_name: devbesu_firefly_core_1
+    #     image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
+    #     volumes:
+    #         - /root/.firefly/stacks/devbesu/runtime/config/firefly_core_1.yml:/etc/firefly/firefly.core.yml:ro
+    #         - firefly_core_data_1:/etc/firefly/data
+    #     ports:
+    #         - 5001:5001
+    #         - 5201:5201
+    #     depends_on:
+    #         besu-bacen-v1:
+    #             condition: service_started
+    #         dataexchange_1:
+    #             condition: service_started
+    #         ethsigner:
+    #             condition: service_healthy
+    #         evmconnect_0:
+    #             condition: service_started
+    #         evmconnect_1:
+    #             condition: service_started
+    #         # ipfs_1:
+    #         #     condition: service_healthy
+    #         tokens_0_0:
+    #             condition: service_healthy
+    #         tokens_1_0:
+    #             condition: service_healthy
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # ipfs_0:
+    #     container_name: devbesu_ipfs_0
+    #     image: ipfs/go-ipfs:v0.10.0
+    #     environment:
+    #         IPFS_SWARM_KEY: |-
+    #             /key/swarm/psk/1.0.0/
+    #             /base16/
+    #             e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
+    #         LIBP2P_FORCE_PNET: "1"
+    #     volumes:
+    #         - ipfs_staging_0:/export
+    #         - ipfs_data_0:/data/ipfs
+    #     ports:
+    #         - 10206:5001
+    #         - 10207:8080
+    #     healthcheck:
+    #         test:
+    #             - CMD-SHELL
+    #             - wget --post-data= http://127.0.0.1:5001/api/v0/id -O - -q
+    #         interval: 5s
+    #         timeout: 3s
+    #         retries: 12
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # ipfs_1:
+    #     container_name: devbesu_ipfs_1
+    #     image: ipfs/go-ipfs:v0.10.0
+    #     environment:
+    #         IPFS_SWARM_KEY: |-
+    #             /key/swarm/psk/1.0.0/
+    #             /base16/
+    #             e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
+    #         LIBP2P_FORCE_PNET: "1"
+    #     volumes:
+    #         - ipfs_staging_1:/export
+    #         - ipfs_data_1:/data/ipfs
+    #     ports:
+    #         - 10406:5001
+    #         - 10407:8080
+    #     healthcheck:
+    #         test:
+    #             - CMD-SHELL
+    #             - wget --post-data= http://127.0.0.1:5001/api/v0/id -O - -q
+    #         interval: 5s
+    #         timeout: 3s
+    #         retries: 12
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # sandbox_0:
+    #     container_name: devbesu_sandbox_0
+    #     image: ghcr.io/hyperledger/firefly-sandbox:latest
+    #     environment:
+    #         FF_ENDPOINT: http://firefly_core_0:5000
+    #     ports:
+    #         - 5109:3001
+    # sandbox_1:
+    #     container_name: devbesu_sandbox_1
+    #     image: ghcr.io/hyperledger/firefly-sandbox:latest
+    #     environment:
+    #         FF_ENDPOINT: http://firefly_core_1:5001
+    #     ports:
+    #         - 5209:3001
+    # tokens_0_0:
+    #     container_name: devbesu_tokens_0_0
+    #     image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
+    #     environment:
+    #         AUTO_INIT: "false"
+    #         ETHCONNECT_TOPIC: tokens_0_0
+    #         ETHCONNECT_URL: http://evmconnect_0:5008
+    #         FACTORY_CONTRACT_ADDRESS: "0x154ab9d1017b0ed1235688649211585ffc9a2268"
+    #     ports:
+    #         - 5108:3000
+    #     depends_on:
+    #         evmconnect_0:
+    #             condition: service_started
+    #     healthcheck:
+    #         test:
+    #             - CMD
+    #             - curl
+    #             - http://localhost:3000/api
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
+    # tokens_1_0:
+    #     container_name: devbesu_tokens_1_0
+    #     image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
+    #     environment:
+    #         AUTO_INIT: "false"
+    #         ETHCONNECT_TOPIC: tokens_1_0
+    #         ETHCONNECT_URL: http://evmconnect_1:5008
+    #         FACTORY_CONTRACT_ADDRESS: "0x154ab9d1017b0ed1235688649211585ffc9a2268"
+    #     ports:
+    #         - 5208:3000
+    #     depends_on:
+    #         evmconnect_1:
+    #             condition: service_started
+    #     healthcheck:
+    #         test:
+    #             - CMD
+    #             - curl
+    #             - http://localhost:3000/api
+    #     logging:
+    #         driver: json-file
+    #         options:
+    #             max-file: "1"
+    #             max-size: 10m
 volumes:
-    besu: {}
+    besu-bacen-v1: {}
     dataexchange_0: {}
     dataexchange_1: {}
     ethsigner: {}
@@ -293,3 +468,11 @@ volumes:
     ipfs_data_1: {}
     ipfs_staging_0: {}
     ipfs_staging_1: {}
+
+networks:
+  besu-network:
+    name: besu-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.239.0/24
