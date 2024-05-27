@@ -509,3 +509,13 @@
 01:06:32.669122 db@open done T·41.32009ms
 01:08:46.438289 db@close closing
 01:08:46.440334 db@close done T·2.0452ms
+=============== May 27, 2024 (UTC) ===============
+12:36:02.808584 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:36:02.815171 version@stat F·[2 1] S·7KiB[5KiB 1KiB] Sc·[0.50 0.00]
+12:36:02.815628 db@open opening
+12:36:02.817063 journal@recovery F·1
+12:36:02.817804 journal@recovery recovering @114
+12:36:02.826721 memdb@flush created L0@116 N·3 S·1KiB "/F5..OSA,v388":"/pr..DUQ,v389"
+12:36:02.829073 version@stat F·[3 1] S·8KiB[6KiB 1KiB] Sc·[0.75 0.00]
+12:36:02.849532 db@janitor F·6 G·0
+12:36:02.849748 db@open done T·33.953895ms

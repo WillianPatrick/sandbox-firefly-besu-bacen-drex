@@ -18,3 +18,13 @@
 01:06:32.486288 db@open done T·38.262711ms
 01:08:46.419444 db@close closing
 01:08:46.422903 db@close done T·3.449489ms
+=============== May 27, 2024 (UTC) ===============
+12:36:02.283331 log@legend F·NumFile S·FileSize N·Entry C·BadEntry B·BadBlock Ke·KeyError D·DroppedEntry L·Level Q·SeqNum T·TimeElapsed
+12:36:02.289453 version@stat F·[1] S·2KiB[2KiB] Sc·[0.25]
+12:36:02.289879 db@open opening
+12:36:02.290912 journal@recovery F·1
+12:36:02.291375 journal@recovery recovering @3
+12:36:02.299224 memdb@flush created L0@5 N·7 S·686B "che..730,v41":"eve..730,v35"
+12:36:02.301468 version@stat F·[2] S·2KiB[2KiB] Sc·[0.50]
+12:36:02.326920 db@janitor F·4 G·0
+12:36:02.329384 db@open done T·39.350831ms
