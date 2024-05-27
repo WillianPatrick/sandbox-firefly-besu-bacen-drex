@@ -1,2 +1,4 @@
 compose-dev.yaml
-firefly/firefly-cli/docker
+old
+docker-compose-firefly.yml
+1-generate-validators-nodes-keys.ps1

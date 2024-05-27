@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/ui/static/css/main.e8a3990b.css",
+    "main.js": "/ui/static/js/main.4c8a31cf.js",
+    "static/media/HyperledgerFireFly-Logo-White.svg": "/ui/static/media/HyperledgerFireFly-Logo-White.473be4c79339d7c870a36ab1973756a7.svg",
+    "static/media/ff-logo-symbol-white.svg": "/ui/static/media/ff-logo-symbol-white.cab4b898740f1579ccf8c13d534c04fc.svg",
+    "index.html": "/ui/index.html",
+    "main.e8a3990b.css.map": "/ui/static/css/main.e8a3990b.css.map",
+    "main.4c8a31cf.js.map": "/ui/static/js/main.4c8a31cf.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.e8a3990b.css",
+    "static/js/main.4c8a31cf.js"
+  ]
+}

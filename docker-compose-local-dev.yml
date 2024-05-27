@@ -1,42 +1,43 @@
 version: "2.1"
+name: besu-bc-local-dev
 services:
-    besu:
+    besu-node-validator-1:
         image: hyperledger/besu:23.10.1
         user: root
-        container_name: besu-local-dev
+        container_name: besu-bc-local-dev-node-validator-1
         environment:
             - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-local-dev,service.version=latest
         entrypoint:
         - /bin/bash
         - -c
         - |
-            cp "/config/besu/config.toml" /opt/besu/config.toml 
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
             cp "/config/besu/genesis.json" /opt/besu/genesis.json 
             cp "/keys/nodes/validators/validator1/key" /opt/besu/nodeKey
-            besu --sync-mode=FULL --config-file=/opt/besu/config.toml --discovery-enabled=false
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL
         volumes:
             - ./services-init-config/local-dev:/config
             - ./data/keys:/keys
         ports:
             - 8545:8545/tcp
-            - 8546:8546/tcp
-            - 8547:8547/tcp
+            - 8546
+            - 8547
             - 30303
-            - 9545   
+            - 9545
         logging:
             driver: json-file
             options:
                 max-file: "1"
                 max-size: 10m
 
-
-    dataexchange_0:
-        container_name: devbesu_dataexchange_0
+    dataexchange:
+        container_name: dataexchange
         image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
         volumes:
-            - dataexchange_0:/data
+            - ./services-init-config/local-dev/dataexchange:/data
         ports:
-            - 10205:3000
+            - 10205:3001
         logging:
             driver: json-file
             options:
@@ -44,12 +45,12 @@ services:
                 max-size: 10m
 
     ethsigner:
-        container_name: devbesu_ethsigner
+        container_name: ethsigner
         image: ghcr.io/hyperledger/firefly-signer@sha256:9f4c29ea05eb111d958d8210601cdf876b4f70fbe443c080dbc7c0c16c7921e9
         user: root
         volumes:
-            - ethsigner:/data
-            - ethsigner_config:/etc/firefly
+            - ./services-init-config/local-dev/ethsigner/data/:/data
+            - ./services-init-config/local-dev/ethsigner:/etc/firefly
         ports:
             - 5100:8545
         healthcheck:
@@ -66,7 +67,7 @@ services:
                 - '%{http_code}'
                 - -sS
                 - --fail
-                - http://localhost:8545/
+                - http://127.0.0.1:8645/
             interval: 15s
             retries: 60
         logging:
@@ -74,13 +75,14 @@ services:
             options:
                 max-file: "1"
                 max-size: 10m
-    evmconnect_0:
-        container_name: devbesu_evmconnect_0
+
+    evmconnect:
+        container_name: evmconnect
         image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
-        command: -f /evmconnect/config.yaml
+        command: -f /evmconnect/config.yaml      
         volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/evmconnect_0.yaml:/evmconnect/config.yaml
-            - evmconnect_data_0:/evmconnect/data
+            - ./services-init-config/local-dev/evmconnect/data:/evmconnect/data
+            - ./services-init-config/local-dev/evmconnect/evmconnect.yaml:/evmconnect/config.yaml
         ports:
             - 5102:5008
         depends_on:
@@ -92,27 +94,29 @@ services:
                 max-file: "1"
                 max-size: 10m
 
-    firefly_core_0:
-        container_name: devbesu_firefly_core_0
+    firefly_core:
+        container_name: firefly_core
         image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
         volumes:
-            - /root/.firefly/stacks/devbesu/runtime/config/firefly_core_0.yml:/etc/firefly/firefly.core.yml:ro
-            - firefly_core_data_0:/etc/firefly/data
+            - ./services-init-config/local-dev/firefly_core/data:/etc/firefly/data
+            - ./services-init-config/local-dev/firefly_core/firefly/:/firefly
+            - ./services-init-config/local-dev/besu/genesis.json:/etc/firefly/genesis.json
+            - ./services-init-config/local-dev/firefly_core/firefly.core.yml:/etc/firefly/firefly.core.yml
         ports:
             - 5000:5000
             - 5101:5101
         depends_on:
-            besu:
+            besu-node-validator-1:
                 condition: service_started
-            dataexchange_0:
+            dataexchange:
                 condition: service_started
             ethsigner:
                 condition: service_healthy
-            evmconnect_0:
+            evmconnect:
                 condition: service_started
-            ipfs_0:
+            ipfs:
                 condition: service_healthy
-            tokens_0_0:
+            tokens:
                 condition: service_healthy
         logging:
             driver: json-file
@@ -120,8 +124,8 @@ services:
                 max-file: "1"
                 max-size: 10m
    
-    ipfs_0:
-        container_name: devbesu_ipfs_0
+    ipfs:
+        container_name: ipfs
         image: ipfs/go-ipfs:v0.10.0
         environment:
             IPFS_SWARM_KEY: |-
@@ -130,8 +134,8 @@ services:
                 e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
             LIBP2P_FORCE_PNET: "1"
         volumes:
-            - ipfs_staging_0:/export
-            - ipfs_data_0:/data/ipfs
+            - ./services-init-config/local-dev/ipfs/staging:/export
+            - ./services-init-config/local-dev/ipfs/data:/data/ipfs
         ports:
             - 10206:5001
             - 10207:8080
@@ -148,26 +152,26 @@ services:
                 max-file: "1"
                 max-size: 10m
    
-    sandbox_0:
-        container_name: devbesu_sandbox_0
+    sandbox:
+        container_name: sandbox
         image: ghcr.io/hyperledger/firefly-sandbox:latest
         environment:
-            FF_ENDPOINT: http://firefly_core_0:5000
+            FF_ENDPOINT: http://firefly_core:5000
         ports:
             - 5109:3001
    
-    tokens_0_0:
-        container_name: devbesu_tokens_0_0
+    tokens:
+        container_name: tokens
         image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
         environment:
             AUTO_INIT: "false"
-            ETHCONNECT_TOPIC: tokens_0_0
-            ETHCONNECT_URL: http://evmconnect_0:5008
-            FACTORY_CONTRACT_ADDRESS: "0x154ab9d1017b0ed1235688649211585ffc9a2268"
+            ETHCONNECT_TOPIC: tokens
+            ETHCONNECT_URL: http://evmconnect:5008
+            FACTORY_CONTRACT_ADDRESS: "0xb649e74db20c87e025365bf2c4451c28a703e9df"
         ports:
             - 5108:3000
         depends_on:
-            evmconnect_0:
+            evmconnect:
                 condition: service_started
         healthcheck:
             test:
@@ -180,21 +184,3 @@ services:
                 max-file: "1"
                 max-size: 10m
    
-volumes:
-    besu: {}
-    dataexchange_0: {}
-    ethsigner: {}
-    ethsigner_config: {}
-    evmconnect_data_0: {}
-    firefly_core_data_0: {}
-    ipfs_data_0: {}
-    ipfs_staging_0: {}
-
-
-networks:
-  besu-network:
-    name: besu-network
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.239.0/24

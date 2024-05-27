@@ -9,15 +9,18 @@
 # Customizar
 genesis-file="/opt/besu/genesis.json"
 node-private-key-file="/opt/besu/nodeKey"
-data-path="/data"
+data-path="/opt/besu/data"
 
 logging="INFO"
 
 min-gas-price=0
+api-gas-price-max=0
+miner-enabled=false
 
 # P2P network
 p2p-enabled=true
 discovery-enabled=false
+static-nodes-file="/opt/besu/static-nodes.json"
 p2p-host="0.0.0.0"
 p2p-port=30303
 max-peers=25
@@ -25,7 +28,7 @@ remote-connections-limit-enabled=false
 host-allowlist=["*"]
 
 # JSON-RPC
-rpc-http-api=["DEBUG", "ETH", "ADMIN", "WEB3", "CLIQUE", "NET", "TXPOOL", "PLUGINS", "MINER", "TRACE"]
+rpc-http-api=["ETH", "ADMIN", "WEB3", "CLIQUE", "NET"]
 rpc-http-host="0.0.0.0"
 rpc-http-cors-origins=["*"]
 rpc-http-enabled=true
@@ -42,14 +45,11 @@ graphql-http-cors-origins=["*"]
 rpc-ws-enabled=true
 rpc-ws-host="0.0.0.0"
 rpc-ws-port=8546
-rpc-ws-api=["DEBUG", "ETH", "ADMIN", "WEB3", "CLIQUE", "NET", "TXPOOL", "PLUGINS", "MINER", "TRACE"]
-
+rpc-ws-api=["ETH", "ADMIN", "WEB3", "CLIQUE", "NET"]
 
 # Metrics
 metrics-enabled=true
 metrics-host="0.0.0.0"
 metrics-port=9545
-
-
 
 
