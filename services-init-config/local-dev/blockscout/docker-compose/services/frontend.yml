@@ -9,6 +9,3 @@ services:
     container_name: 'frontend'
     env_file:
       -  ../envs/common-frontend.env
-    depends_on:
-      backend:
-        condition: service_started

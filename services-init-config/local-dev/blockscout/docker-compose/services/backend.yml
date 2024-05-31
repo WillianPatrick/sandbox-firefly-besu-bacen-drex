@@ -15,8 +15,3 @@ services:
     volumes:
       - ./logs/:/app/logs/
       - ../../apps:/config
-    depends_on:
-      besu-node-validator-1:
-          condition: service_started
-      db:
-          condition: service_healthy
