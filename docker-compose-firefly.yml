@@ -77,8 +77,6 @@ services:
             - 5000:5000
             - 5101:5101
         depends_on:
-            besu-node-validator-1:
-                condition: service_started
             dataexchange:
                 condition: service_started
             ethsigner:

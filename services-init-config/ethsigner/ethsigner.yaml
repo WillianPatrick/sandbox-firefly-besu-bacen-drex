@@ -12,4 +12,4 @@ fileWallet:
     keyFileProperty: '{{ index .signing "key-file" }}'
     passwordFileProperty: '{{ index .signing "password-file" }}'
 log:
-  level: debug
+  level: info

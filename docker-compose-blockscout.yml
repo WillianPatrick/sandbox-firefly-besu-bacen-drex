@@ -1,16 +1,8 @@
 version: "2.1"
 name: blockscout-explorer
 
-services:
-   
+
 include:
     - ./services-init-config/blockscout/docker-compose/hardhat-network.yml
 
 
-networks:
-  besu-network:
-    name: besu-network
-    driver: bridge
-    ipam:
-      config:
-        - subnet: 172.16.239.0/24

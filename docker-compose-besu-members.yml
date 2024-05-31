@@ -1,0 +1,76 @@
+version: "2.1"
+name: hyperledger-besu-members
+
+services:
+    besu-node-member-1:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-member-1
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-member-1,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/members/member1/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL --bootnodes=enode://c73adda80f0f5f202c8f3e152a32ed8f00a7b88cb7c4bda3883313d3cfd69e3f2f1090b233202aab4299fe3a46dd8812a8c073799404389c7bc29d7c366dc675@172.16.239.10:30303
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 22000:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.20
+
+    besu-node-member-2:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-member-2
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-member-2,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/members/member2/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL --bootnodes=enode://c73adda80f0f5f202c8f3e152a32ed8f00a7b88cb7c4bda3883313d3cfd69e3f2f1090b233202aab4299fe3a46dd8812a8c073799404389c7bc29d7c366dc675@172.16.239.10:30303
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 22001:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.21
+
+
+networks:
+  besu-network:
+    name: besu-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.239.0/24

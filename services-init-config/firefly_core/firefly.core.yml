@@ -13,7 +13,7 @@ http:
   port: 5000
   publicURL: http://127.0.0.1:5000
 log:
-  level: debug
+  level: info
 metrics: {}
 namespaces:
   default: default

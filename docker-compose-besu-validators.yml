@@ -1,5 +1,5 @@
 version: "2.1"
-name: hyperledger-besu
+name: hyperledger-besu-validators
 
 services:
     besu-node-validator-1:
@@ -17,7 +17,7 @@ services:
             cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
             cp "/config/besu/genesis.json" /opt/besu/genesis.json 
             cp "/keys/nodes/validators/validator1/key" /opt/besu/nodeKey
-            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL 
         volumes:
             - ./services-init-config/:/config
             - ./data/keys:/keys
