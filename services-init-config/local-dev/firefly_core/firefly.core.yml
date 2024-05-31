@@ -24,15 +24,19 @@ namespaces:
       contract:
       - firstEvent: "0"
         location:
-          address: 0xb649e74db20c87e025365bf2c4451c28a703e9df
+          address: 0xD641FAe21c31d8C0A572B91d964f12e2C9355D6b
         options: {}
       enabled: true
       node:
-        name: node_6410b2
-        address:  0xad85620f40b55ae599b46d9ef699e1fa15a12097
+        name: Local_Dev_Will
+        address: 0xad85620f40b55ae599b46d9ef699e1fa15a12097
+        profile: 
+          cert: -----BEGIN CERTIFICATE-----\nMIIDOTCCAiGgAwIBAgIUUVacXUBEW2wVrHj0UOBwYfqPFiAwDQYJKoZIhvcNAQEL\nBQAwLDEXMBUGA1UEAwwOZGF0YWV4Y2hhbmdlXzAxETAPBgNVBAoMCG1lbWJlcl8w\nMB4XDTI0MDUxOTAyNDE0NloXDTI1MDUxOTAyNDE0NlowLDEXMBUGA1UEAwwOZGF0\nYWV4Y2hhbmdlXzAxETAPBgNVBAoMCG1lbWJlcl8wMIIBIjANBgkqhkiG9w0BAQEF\nAAOCAQ8AMIIBCgKCAQEAtmL8BhYYWkSWMttGn/qRXsw2VbUlrBO8feI8w0Ny2ajv\n6Nj1ZuD0UtQKUIQAtCaJjHA6PDrdF4dZSB3EM2PwoaPovwXffQ7bAfWdH48Q/lgU\nPzzMczoQl62sF2HU3yRAEtzP/HswetYGIvWC0C41NrKS/VwU/7VujUIC+NC5Y7d0\nfRga+ehC2vdz1psEb9lN84+P3gJUo08TCaiTpnj4GXwpEVtaaaguo5TNLBtqeYJA\nBygUbw++1K9E2V2yJK0YOOMs67qPh8QSyOZQW9nV4tgG/e81TxZK1lzhPqXKEox/\nktNoX/C3GS0Tp67ZuX4IPINZzzN778ritLQyeq5rSQIDAQABo1MwUTAdBgNVHQ4E\nFgQUUyFzD9nFoaIWmaBx3KfYqSrU8igwHwYDVR0jBBgwFoAUUyFzD9nFoaIWmaBx\n3KfYqSrU8igwDwYDVR0TAQH/BAUwAwEB/zANBgkqhkiG9w0BAQsFAAOCAQEAInRJ\nja1ABIjgfdDD9/SsdHicKxetD3NQ7pNfnaWkeQEk6Vln1b3cKdwOcrqZcxY7vbTl\n3lR4iO8kJbMBWz9EgpOEpYORCe1mHEz7phCr8un6Y3dLOD4JLdRv9Uc6sTo5Itdi\ncC0zuknc2zhJov0vqXVvQ+i0jMNGBJ0o0swA1u/fjJkSNqefJ4J6EU1iL5+nI7XG\nGUUlUieDOEiPkH0ZCHzEP0QBgD4uARIcbR/ppYpB/6IJ1xlIcaGjtfzFn+NaBpZ1\nJ5VBWnR7VHVvFRNsNm9Trs5zcP2ssIIKbN9xpLMKgtRL8LlnDEMC6/q+nGehqfTg\naaiIlAM1QLApzUg8Ww==\n-----END CERTIFICATE-----\n
+          endpoint: http://dataexchange:3001
+          id: member/Local_Dev_Will
       org:
         key:  0x751e1fb22807ff1415af514b64055a57a0ddfc94
-        name: org_19c4aa
+        name: SAFRA
     name: default
     plugins:
     - database0

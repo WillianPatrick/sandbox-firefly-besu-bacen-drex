@@ -3,7 +3,7 @@ server:
   address: 0.0.0.0
 backend:
   chainId: 381660001
-  url: http://besu-node-validator-1:8545
+  url: http://host.docker.internal:8545
 fileWallet:
   path: /data/keystore
   filenames:
