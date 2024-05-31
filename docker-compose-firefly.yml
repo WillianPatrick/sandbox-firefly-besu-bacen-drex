@@ -1,0 +1,157 @@
+version: "2.1"
+name: hyperledger-firefly
+
+services:
+    dataexchange:
+        container_name: firefly-dataexchange
+        image: ghcr.io/hyperledger/firefly-dataexchange-https@sha256:4ac765f7a07b9d17ab5648b3c789875791db364659c975a23626ec5921f11ce4
+        volumes:
+            - ./services-init-config/dataexchange:/data
+        ports:
+            - 10205:3001
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+
+    ethsigner:
+        container_name: firefly-ethsigner
+        image: ghcr.io/hyperledger/firefly-signer@sha256:9f4c29ea05eb111d958d8210601cdf876b4f70fbe443c080dbc7c0c16c7921e9
+        user: root
+        volumes:
+            - ./services-init-config/ethsigner/data/:/data
+            - ./services-init-config/ethsigner:/etc/firefly
+        ports:
+            - 5100:8545
+        healthcheck:
+            test:
+                - CMD
+                - curl
+                - -X
+                - POST
+                - -H
+                - 'Content-Type: application/json'
+                - -d
+                - '{"jsonrpc":"2.0","method":"net_version","params":[],"id":"1"}'
+                - -w
+                - '%{http_code}'
+                - -sS
+                - --fail
+                - http://127.0.0.1:8545/
+            interval: 15s
+            retries: 60
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+
+    evmconnect:
+        container_name: firefly-evmconnect
+        image: ghcr.io/hyperledger/firefly-evmconnect@sha256:b4afb5bd4032a87f7f4145d49480f204a873302f21b476f85c39e93a776e3a1c
+        command: -f /evmconnect/config.yaml      
+        volumes:
+            - ./services-init-config/evmconnect/data:/evmconnect/data
+            - ./services-init-config/evmconnect/evmconnect.yaml:/evmconnect/config.yaml
+        ports:
+            - 5102:5008
+        depends_on:
+            ethsigner:
+                condition: service_healthy
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+
+    firefly_core:
+        container_name: firefly-core
+        image: ghcr.io/hyperledger/firefly@sha256:404c9193060de79f71d0f079629d8f11981fce822a648cb91b375ef2b3980204
+        volumes:
+            - ./services-init-config/firefly_core/data:/etc/firefly/data
+            - ./services-init-config/firefly_core/firefly/:/firefly
+            - ./services-init-config/besu/genesis.json:/etc/firefly/genesis.json
+            - ./services-init-config/firefly_core/firefly.core.yml:/etc/firefly/firefly.core.yml
+        ports:
+            - 5000:5000
+            - 5101:5101
+        depends_on:
+            besu-node-validator-1:
+                condition: service_started
+            dataexchange:
+                condition: service_started
+            ethsigner:
+                condition: service_healthy
+            evmconnect:
+                condition: service_started
+            ipfs:
+                condition: service_healthy
+            tokens:
+                condition: service_healthy
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m 
+   
+    ipfs:
+        container_name: firefly-ipfs
+        image: ipfs/go-ipfs:v0.10.0
+        environment:
+            IPFS_SWARM_KEY: |-
+                /key/swarm/psk/1.0.0/
+                /base16/
+                e4039f57abf14f17b242901a13dfbc12c3a3ab8839108247d863897e6a3e17ce
+            LIBP2P_FORCE_PNET: "1"
+        volumes:
+            - ./services-init-config/ipfs/staging:/export
+            - ./services-init-config/ipfs/data:/data/ipfs
+        ports:
+            - 10206:5001
+            - 10207:8080
+        healthcheck:
+            test:
+                - CMD-SHELL
+                - wget --post-data= http://127.0.0.1:5001/api/v0/id -O - -q
+            interval: 5s
+            timeout: 3s
+            retries: 12
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+   
+    sandbox:
+        container_name: firefly-sandbox
+        image: ghcr.io/hyperledger/firefly-sandbox:latest
+        environment:
+            FF_ENDPOINT: http://firefly_core:5000
+        ports:
+            - 5109:3001
+   
+    tokens:
+        container_name: firefly-tokens
+        image: ghcr.io/hyperledger/firefly-tokens-erc20-erc721@sha256:c75699b05cb41c8950dcb1b1eed49f7beee910433ff78830df6db61dfc325812
+        environment:
+            AUTO_INIT: "true"
+            ETHCONNECT_TOPIC: tokens
+            ETHCONNECT_URL: http://evmconnect:5008
+            FACTORY_CONTRACT_ADDRESS: "0x3100FEeC6e4D3DeF3dCcdF5Ff35A0Ccc2Ce8e13A"
+        ports:
+            - 5108:3000
+        depends_on:
+            evmconnect:
+                condition: service_started
+        healthcheck:
+            test:
+                - CMD
+                - curl
+                - http://localhost:3000/api
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+

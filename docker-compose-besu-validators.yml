@@ -1,0 +1,139 @@
+version: "2.1"
+name: hyperledger-besu
+
+services:
+    besu-node-validator-1:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-validator-1
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-validator-1,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/validators/validator1/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 8545:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.10
+
+    besu-node-validator-2:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-validator-2
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-validator-2,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/validators/validator2/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL --bootnodes=enode://c73adda80f0f5f202c8f3e152a32ed8f00a7b88cb7c4bda3883313d3cfd69e3f2f1090b233202aab4299fe3a46dd8812a8c073799404389c7bc29d7c366dc675@172.16.239.10:30303
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 21001:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.11
+
+    besu-node-validator-3:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-validator-3
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-validator-3,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/validators/validator3/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL --bootnodes=enode://c73adda80f0f5f202c8f3e152a32ed8f00a7b88cb7c4bda3883313d3cfd69e3f2f1090b233202aab4299fe3a46dd8812a8c073799404389c7bc29d7c366dc675@172.16.239.10:30303
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 21002:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.12
+
+    besu-node-validator-4:
+        image: hyperledger/besu:23.10.1
+        user: root
+        container_name: besu-node-validator-4
+        environment:
+            - OTEL_RESOURCE_ATTRIBUTES=service.name=besu-validator-4,service.version=latest
+        entrypoint:
+        - /bin/bash
+        - -c
+        - |
+            cp "/config/besu/config.toml" /opt/besu/config.toml
+            cp "/config/besu/permissions_config.toml" /opt/besu/permissions_config.toml
+            cp "/config/besu/static-nodes.json" /opt/besu/static-nodes.json
+            cp "/config/besu/genesis.json" /opt/besu/genesis.json 
+            cp "/keys/nodes/validators/validator4/key" /opt/besu/nodeKey
+            besu --config-file=/opt/besu/config.toml  --sync-mode=FULL --bootnodes=enode://c73adda80f0f5f202c8f3e152a32ed8f00a7b88cb7c4bda3883313d3cfd69e3f2f1090b233202aab4299fe3a46dd8812a8c073799404389c7bc29d7c366dc675@172.16.239.10:30303
+        volumes:
+            - ./services-init-config/:/config
+            - ./data/keys:/keys
+        ports:
+            - 21003:8545/tcp
+            - 30303
+            - 9545
+        logging:
+            driver: json-file
+            options:
+                max-file: "1"
+                max-size: 10m
+        networks:
+            besu-network:
+                ipv4_address: 172.16.239.13
+
+networks:
+  besu-network:
+    name: besu-network
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.16.239.0/24
