@@ -10,7 +10,9 @@ services:
       - -c
       - |
         chown -R 2000:2000 /var/lib/postgresql/data
-
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+      
   stats-db:
     image: postgres:15
     user: 2000:2000
@@ -33,6 +35,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
 
   stats:
     image: ghcr.io/blockscout/stats:${STATS_DOCKER_TAG:-latest}

@@ -1,0 +1,13 @@
+{
+    "name": "hardhat-docker",
+    "scripts": {
+      "start:local": "npx hardhat node --hostname 0.0.0.0 --config hardhat.config.local.js --network hardhat",
+      "start:fork": "npx hardhat node --fork http://host.docker.internal:8545 --hostname 0.0.0.0 --config hardhat.config.local.js --network hardhat"
+    },
+    "devDependencies": {
+        "@nomiclabs/hardhat-ethers": "^2.0.2",
+        "ethers": "5.7.2",
+        "hardhat": "2.22.5",
+        "wait-on": "^6.0.1"
+    }
+  }

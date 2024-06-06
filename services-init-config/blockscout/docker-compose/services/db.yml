@@ -10,6 +10,8 @@ services:
       - -c
       - |
         chown -R 2000:2000 /var/lib/postgresql/data
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'        
 
   db:
     image: postgres:15
@@ -33,4 +35,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'      
 

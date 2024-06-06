@@ -9,3 +9,5 @@ services:
     container_name: 'visualizer'
     env_file:
       -  ../envs/common-visualizer.env
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

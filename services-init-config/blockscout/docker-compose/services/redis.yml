@@ -7,3 +7,5 @@ services:
     command: redis-server
     volumes:
       - ./redis-data:/data
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'

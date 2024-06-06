@@ -1,0 +1,17 @@
+version: '3.9'
+
+services:
+  hardhat:
+    image: node:18-alpine
+    pull_policy: always
+    restart: always
+    container_name: 'hardhat'
+    command: sh -c "cd /usr/src/app && npm install && npm update && yarn install --non-interactive --frozen-lockfile && yarn start:local && npx wait-on http://127.0.0.1:8545 && wait $!"
+    extra_hosts:
+      - 'host.docker.internal:host-gateway'
+    volumes:
+      - ./hardhat/hardhat.config.local.js:/usr/src/app/hardhat.config.local.js
+      - ./hardhat/package.json:/usr/src/app/package.json
+    ports:
+      - target: 8545
+        published: 7545
