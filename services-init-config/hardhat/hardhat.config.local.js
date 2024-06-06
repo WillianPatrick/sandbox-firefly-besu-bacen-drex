@@ -38,13 +38,14 @@ module.exports = {
     },
     defaultNetwork: 'hardhat',
     initialBaseFeePerGas: 0,
+    loggingEnabled: false,
     networks: {
         hardhat: {
             hardfork: "london",
             initialBaseFeePerGas: 0,
             chainId: 381660001,
             allowUnlimitedContractSize: true,
-            loggingEnabled: true,
+            loggingEnabled: false,
             gasPrice: 0,
             gas: 0,
             gasMultiplier: 0,

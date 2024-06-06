@@ -1,5 +1,5 @@
 version: '3.9'
-
+name: hardhat-local-node
 services:
   hardhat:
     image: node:18-alpine
@@ -10,8 +10,10 @@ services:
     extra_hosts:
       - 'host.docker.internal:host-gateway'
     volumes:
-      - ./hardhat/hardhat.config.local.js:/usr/src/app/hardhat.config.local.js
-      - ./hardhat/package.json:/usr/src/app/package.json
+      - ./services-init-config/hardhat/hardhat.config.local.js:/usr/src/app/hardhat.config.local.js
+      - ./services-init-config/hardhat/package.json:/usr/src/app/package.json
     ports:
       - target: 8545
-        published: 7545
+        published: 8545
+
+
